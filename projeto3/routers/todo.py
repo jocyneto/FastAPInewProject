@@ -24,7 +24,7 @@ def get_db():
 db_dependecy = Annotated[Session, Depends(get_db)]
 user_dependecy = Annotated[dict, Depends(get_current_user)]
 
-@router.get("/", status_code=status.HTTP_200_OK)
+@router.get("/todos/get_by_user", status_code=status.HTTP_200_OK)
 async def read_all(user: user_dependecy,db: db_dependecy):
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Não autorizado")

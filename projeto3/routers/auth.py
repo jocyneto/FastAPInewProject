@@ -44,9 +44,9 @@ def autenticate_user(username: str, password:str, db):
     return user
 
 
-def create_access_token(username: str, user_id:int, expires_delta:timedelta):
-    encode = { "sub": username, "id":user_id } # A
-    expires = datetime.now(timezone.utc) + timedelta(minutes=30)
+def create_access_token(username: str, user_id:int, role:str, expires_delta:timedelta):
+    encode = { "sub": username, "id":user_id, "role":role} # A
+    expires = datetime.now(timezone.utc) + expires_delta
     encode.update({"exp": expires})
     return jwt.encode(encode, SECRETE_KEY, algorithm=ALGORITHM)
 
@@ -56,10 +56,11 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
         payload = jwt.decode(token, SECRETE_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub") # relacionado com linha com comentario A
         user_id: str = payload.get("id") # relacionado com linha com comentario A
+        user_role: str = payload.get("role") # relacionado com linha com comentario A
         if username is None or user_id is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                 detail="Não foi possivel validar usuário.")
-        return {"username": username, "id": user_id}
+        return {"username": username, "id": user_id, "user_role":user_role}
      except JWTError:
          raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                 detail="Não foi possivel validar usuário.")
@@ -88,6 +89,6 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
     user = autenticate_user(form_data.username, form_data.password, db)
     if not user:
         return "Failed Authentication"
-    token = create_access_token(user.username, user.id, timedelta(minutes=20))
+    token = create_access_token(user.username, user.id, user.role, timedelta(minutes=30))
     return {"access_token": token, "token_type": "bearer"}
 #endregion
