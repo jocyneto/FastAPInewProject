@@ -1,11 +1,36 @@
 version: "3.4"
 
 services:
-  dev-backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    volumes:
-      - "./:/src"
-    ports:
-      - "8000:8000"
+    dev-backend:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        volumes:
+            - "./:/src"
+        ports:
+            - "8000:8000"
+        depends_on:
+            - postgres # Garante que o serviço 'postgres' será iniciado antes do 'dev-backend'
+
+    postgres:
+        image: postgres:13-alpine
+        container_name: db
+        restart: always
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_DB=postgres
+        volumes:
+            - ./queries:/queries
+            - ./db.sql:/docker-entrypoint-initdb.d/db.sql
+# version: "3.4"
+
+# services:
+#   dev-backend:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile
+#     volumes:
+#       - "./:/src"
+#     ports:
+#       - "8000:8000"
