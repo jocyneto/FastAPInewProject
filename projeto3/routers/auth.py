@@ -46,7 +46,7 @@ def autenticate_user(username: str, password:str, db):
 
 def create_access_token(username: str, user_id:int, expires_delta:timedelta):
     encode = { "sub": username, "id":user_id } # A
-    expires = datetime.now(timezone.utc) + expires_delta
+    expires = datetime.now(timezone.utc) + timedelta(minutes=30)
     encode.update({"exp": expires})
     return jwt.encode(encode, SECRETE_KEY, algorithm=ALGORITHM)
 
@@ -83,11 +83,11 @@ async def create_user(user_request: User_Model,
     db.commit()
 
 @router.post("/token", response_model=Token_Model)
-async def login_for_acess_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependecy):
+async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependecy):
     # return form_data.username
     user = autenticate_user(form_data.username, form_data.password, db)
     if not user:
         return "Failed Authentication"
     token = create_access_token(user.username, user.id, timedelta(minutes=20))
-    return {"acess_token": token, "token_type": "bearer"}
+    return {"access_token": token, "token_type": "bearer"}
 #endregion

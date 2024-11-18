@@ -1,5 +1,6 @@
 from database import Base
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy.orm import relationship
 
 class Users(Base):
     __tablename__ = "users"
@@ -13,6 +14,9 @@ class Users(Base):
     is_activate = Column(Boolean, default=True)
     role = Column(String)
 
+    # Relacionamento com Todos
+    todos = relationship("Todos", back_populates="owner")
+
 
 class Todos(Base):
     __tablename__ = "todos"
@@ -22,4 +26,10 @@ class Todos(Base):
     description = Column(String)
     priority = Column(Integer)
     complete = Column(Boolean)
-    user_id = (Integer, ForeignKey("users.id"))
+
+     # Chave estrangeira
+    user_id = Column(Integer, ForeignKey("users.id"))
+
+    # Relacionamento com Users
+    owner = relationship("Users", back_populates="todos")
+
